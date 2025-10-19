@@ -146,10 +146,8 @@ async def main():
     # run webhook (Application.run_webhook should handle aiohttp server internally)
     await application.run_webhook(listen="0.0.0.0", port=PORT, url_path=WEBHOOK_PATH)
 
-if __name__ == "__main__":
-    import asyncio
     if __name__ == "__main__":
-    import asyncio
+         import asyncio 
 
     try:
         loop = asyncio.get_event_loop()
