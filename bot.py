@@ -123,36 +123,38 @@ async def main():
     application.add_handler(CommandHandler("help", help_cmd))
     application.add_handler(CommandHandler("adminbroadcast", admin_broadcast))
     application.add_handler(CallbackQueryHandler(callback_handler))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, text_handler))
     application.add_error_handler(error_handler)
 
     # Scheduler for periodic signals (optional)
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(lambda: application.create_task(scheduled_signal(application)), "interval", minutes=60)
+    scheduler.add_job(lambda: application.create_task(scheduled_task()))
     scheduler.start()
 
     # Set webhook
     if not WEBHOOK_URL:
-        # default domain for Railway; adjust if your Railway project domain differs
+        # default domain for Railway
         project_domain = os.getenv("RAILWAY_STATIC_URL", "sabtradebot-production.up.railway.app")
-        WEBHOOK_URL_FULL = f"https://{project_domain}{WEBHOOK_PATH}"
+        WEBHOOK_URL_FULL = f"https://{project_domain}{WEBHOOK_URL}"
     else:
         WEBHOOK_URL_FULL = WEBHOOK_URL
 
     logger.info(f"Setting webhook to: {WEBHOOK_URL_FULL}")
+
     # set webhook
     await application.bot.set_webhook(WEBHOOK_URL_FULL)
 
-    # run webhook (Application.run_webhook should handle aiohttp server internally)
-    await application.run_webhook(listen="0.0.0.0", port=PORT, url_path=WEBHOOK_PATH)
+    # run webhook
+    await application.run_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
 
-    if __name__ == "__main__":
-         import asyncio 
+
+if __name__ == "__main__":
+    import asyncio
 
     try:
         loop = asyncio.get_event_loop()
         loop.run_until_complete(main())
     except RuntimeError:
-        # اگر لوپ از قبل اجرا شده باشه، ازش استفاده می‌کنیم
+        # اگر لوپ از قبل اجرا شده باشد، ازش استفاده می‌کنیم
         asyncio.create_task(main())
         loop.run_forever()
