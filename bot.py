@@ -115,6 +115,9 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
     logger.exception("Exception while handling an update:", exc_info=context.error)
 
 # ------------------ Main (Webhook) ------------------
+async def text_handler(update, context):
+    text = update.message.text
+    await update.message.reply_text(f"شما نوشتید: {text}")
 async def main():
     await init_db()
     application = ApplicationBuilder().token(TOKEN).build()
